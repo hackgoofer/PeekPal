@@ -13,3 +13,10 @@ ngrok http 5002 # because https://stackoverflow.com/questions/70247195/flask-ngr
 # or
 ngrok http 5002 --domain chicken-regular-pigeon.ngrok-free.app # swyx's custom ngrok
 ```
+
+## streamlit 
+
+
+```bash
+streamlit run streamlit.py
+```

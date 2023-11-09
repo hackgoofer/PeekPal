@@ -22,7 +22,7 @@ def whisper(data):
             # print(event)
 
     result = handler.get()
-    return result.text
+    return result['text']
 
 
 def mp3_data_to_data_url(mp3_data):

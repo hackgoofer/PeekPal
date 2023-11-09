@@ -1,4 +1,8 @@
-screenshots
+screenshots/*
+!screenshots/.gitkeep
 
 env
 .env
+
+goal.txt
+instructions.txt

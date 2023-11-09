@@ -17,7 +17,7 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode("utf-8")
 
 
-def write_items_to_file(items, filename="what you should do.txt"):
+def write_items_to_file(items, filename="instructions.txt"):
     with open(filename, "w") as file:
         # Write items in reverse order
         for item in reversed(items):
@@ -41,7 +41,7 @@ def get_screenshot():
 
 
 goal = "listen to the same song at the same time with a friend"
-with open("what i'm doing.txt", "r") as file:
+with open("goal.txt", "r") as file:
     goal = file.readline().strip()
 
 messages = [

@@ -13,7 +13,7 @@ __PIL_TUPLE_VERSION = tuple(int(x) for x in PIL.__version__.split("."))
 pyscreeze.PIL__version__ = __PIL_TUPLE_VERSION
 
 # Set the interval between screenshots in seconds
-interval = 1  # e.g., 5 seconds
+interval = 5  # e.g., 5 seconds
 
 # Set the number of screenshots to take
 number_of_screenshots = 200

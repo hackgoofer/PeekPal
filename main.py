@@ -21,7 +21,9 @@ def write_items_to_file(items, filename="instructions.txt"):
     with open(filename, "w") as file:
         # Write items in reverse order
         for item in reversed(items):
-            file.write(f"{item}\n")
+            file.write(f"### Todo added at time: {item[1]}\n")
+            file.write(f"{item[0]}\n")
+            file.write(f"\n\n\n")
 
 
 def get_screenshot():
@@ -70,7 +72,7 @@ response = client.chat.completions.create(
 
 reply = response.choices[0].message.content
 print(reply)
-replies.append(reply)
+replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
 messages.extend(
     [
@@ -100,7 +102,7 @@ response = client.chat.completions.create(
 
 reply = response.choices[0].message.content
 print(reply)
-replies.append(reply)
+replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
 while True:
     # Get all screenshot files
@@ -142,6 +144,6 @@ while True:
 
     reply = response.choices[0].message.content
     print(f"GPT replies: {reply}")
-    replies.append(reply)
+    replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     write_items_to_file(replies)
     time.sleep(2)

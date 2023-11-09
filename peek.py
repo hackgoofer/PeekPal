@@ -16,7 +16,7 @@ pyscreeze.PIL__version__ = __PIL_TUPLE_VERSION
 interval = 5  # e.g., 5 seconds
 
 # Set the number of screenshots to take
-number_of_screenshots = 200
+number_of_screenshots = 20
 
 
 # Function to take a screenshot

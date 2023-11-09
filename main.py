@@ -10,6 +10,11 @@ import datetime
 load_dotenv()
 client = OpenAI()
 
+import pygame
+
+# Initialize pygame mixer
+pygame.mixer.init()
+
 
 # Function to encode the image
 def encode_image(image_path):
@@ -42,6 +47,59 @@ def get_screenshot():
     return encoded_image
 
 
+def get_spicy_comment(text):
+    messages = [
+        {
+            "role": "system",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "You are a spicy friend who loves drama - you want to be helpful to your users but you also loves to roast them.",
+                },
+            ],
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    # "text": "According to the screenshot, what is the next step so that I can listen to the same song at the same time with a friend?",
+                    "text": f"Provide a few sentences of summary based on: {text}",
+                },
+            ],
+        },
+    ]
+    response = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        messages=messages,
+        max_tokens=300,
+    )
+    reply = response.choices[0].message.content
+    print(f"Spicy comment: {reply}")
+    return reply
+
+
+def speak_aloud(text):
+    speech_file_path = "speech.mp3"
+    response = client.audio.speech.create(
+        model="tts-1",
+        voice="nova",
+        input=text,
+    )
+
+    response.stream_to_file(speech_file_path)
+
+    # Load the MP3 music file
+    pygame.mixer.music.load(speech_file_path)
+
+    # Play the music
+    pygame.mixer.music.play()
+
+    # Wait for the music to finish playing
+    while pygame.mixer.music.get_busy():
+        pygame.time.Clock().tick(10)
+
+
 goal = "listen to the same song at the same time with a friend"
 with open("goal.txt", "r") as file:
     goal = file.readline().strip()
@@ -69,7 +127,7 @@ messages = [
                 "image_url": {"url": f"data:image/png;base64,{get_screenshot()}"},
             },
         ],
-    }
+    },
 ]
 replies = []
 
@@ -155,4 +213,6 @@ while True:
     print(f"GPT replies: {reply}")
     replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     write_items_to_file(replies)
+    comment = get_spicy_comment(reply)
+    speak_aloud(comment)
     time.sleep(1)

@@ -5,7 +5,11 @@ import io
 import base64
 import fal
 from dotenv import load_dotenv
+from openai import OpenAI
+import datetime
+import time
 
+client = OpenAI()
 load_dotenv()
 
 
@@ -69,21 +73,116 @@ def process_audio(audio_blob):
 # Create the Streamlit app layout
 st.markdown("<h1 style='text-align: center;'>PeekPal</h1>", unsafe_allow_html=True)
 
+
+
 tra = ""
 # Place the microphone in the center of the screen
 col1, col2, col3 = st.columns([1, 4, 1])
 with col2:
-    wav_audio_data = st_audiorec()
-    if wav_audio_data is not None:
-        st.audio(wav_audio_data, format="audio/wav")
-        tra = process_audio(wav_audio_data)
+    with st.form("audio_form"):
+        wav_audio_data = st_audiorec()
+        submit_button = st.form_submit_button(label='Submit')
+
+    if submit_button:
+        if wav_audio_data is not None:
+            st.audio(wav_audio_data, format="audio/wav")
+            tra = process_audio(wav_audio_data)
+
+from main import get_screenshot
+
+messages = [
+    {
+        "role": "system",
+        "content": [
+            {
+                "type": "text",
+                "text": "You are a GPT4 Vision assitant bot - you will be given screenshots of the user's current screen, along with their intended goal. If they have not yet achieved their goal, you should offer suggestions for what they should do. Respond in short sentences and if any bullet points and emphasis, format them in markdown.",
+            },
+        ],
+    },
+    {
+        "role": "user",
+        "content": [
+            {
+                "type": "text",
+                # "text": "According to the screenshot, what is the next step so that I can listen to the same song at the same time with a friend?",
+                "text": "describe the screenshot",
+            },
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{get_screenshot()}"},
+            },
+        ],
+    }
+]
+replies = []
+
+# Display the screenshot in a Streamlit image component
+screenshot = messages[1]['content'][1]['image_url']['url']
+st.image(screenshot, caption='Current Screenshot')
+
+response = client.chat.completions.create(
+    model="gpt-4-vision-preview",
+    messages=messages,
+    max_tokens=300,
+)
+
+reply = response.choices[0].message.content
+print(reply)
+replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
 
 # Markdown field at the bottom
 st.markdown("## Your transcriptions will appear here")
 transcription_placeholder = st.empty()
 
-# This would be where the transcription is updated
-transcription_placeholder.markdown(f"### GOAL: {tra}")
+if tra:
+    # Markdown field at the bottom
+    st.markdown("## Goal")
+    transcription_placeholder = st.empty()
 
-# To run the app, save the code to a file (e.g., `app.py`) and
-# use the command `streamlit run app.py`.
+    # This would be where the transcription is updated
+    # transcription_placeholder.markdown(f"### GOAL: {tra}")
+    transcription_placeholder.markdown(f"### GOAL")
+
+    # Create a text area box that defaults to the `tra` variable
+    user_input = st.text_area("Update your goal:", value=tra)
+    # Update the `tra` variable with the user's input
+    if user_input != tra:
+        tra = user_input
+        transcription_placeholder.markdown(f"### GOAL: {tra}")
+
+if tra:
+    messages.extend(
+        [
+            {
+                "role": "assistant",
+                "content": [
+                    {"type": "text", "text": reply},
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"According to the screenshot, what is the next step so to achieve the goal: {tra}",
+                    },
+                ],
+            },
+        ]
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-4-vision-preview",
+        messages=messages,
+        max_tokens=300,
+    )
+
+    reply = response.choices[0].message.content
+
+    chat_placeholder = st.markdown(reply)
+
+    # # Continually update the chat component with chat messages
+    # for message in messages:
+    #     chat_placeholder.markdown(message['content'][0]['text'] if message['content'][0]['text'] else 'image')

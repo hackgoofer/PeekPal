@@ -6,3 +6,5 @@ env
 
 goal.txt
 instructions.txt
+
+__pycache__/

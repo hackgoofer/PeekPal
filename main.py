@@ -1,12 +1,12 @@
 from openai import OpenAI
 import base64
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import time
 import os
 import glob
 import datetime
 
-load_dotenv()
+# load_dotenv()
 
 client = OpenAI()
 
@@ -40,7 +40,7 @@ messages = [
             {
                 "type": "image_url",
                 "image_url": {
-                    "url": f"data:image/png;base64,{encode_image('screenshots/spotify.png')}"
+                    "url": f"data:image/png;base64,{encode_image('screenshots/screenshot_2023-11-09-12-34-27.png')}"
                 },
             },
         ],
@@ -65,7 +65,7 @@ messages.extend(
             "content": [
                 {
                     "type": "text",
-                    "text": reply.message.content,
+                    "text": reply
                 },
             ],
         },

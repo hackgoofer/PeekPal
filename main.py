@@ -48,6 +48,15 @@ with open("goal.txt", "r") as file:
 
 messages = [
     {
+        "role": "system",
+        "content": [
+            {
+                "type": "text",
+                "text": "You are a GPT4 Vision assitant bot - you will be given screenshots of the user's current screen, along with their intended goal. If they have not yet achieved their goal, you should offer suggestions for what they should do. Respond in short sentences and if any bullet points and emphasis, format them in markdown.",
+            },
+        ],
+    },
+    {
         "role": "user",
         "content": [
             {
@@ -146,4 +155,4 @@ while True:
     print(f"GPT replies: {reply}")
     replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
     write_items_to_file(replies)
-    time.sleep(2)
+    time.sleep(1)

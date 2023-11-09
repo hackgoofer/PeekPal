@@ -1,3 +1,5 @@
 openai==1.2.0
 python-dotenv==1.0.0
 fal
+flask==3.0.0
+markdown==3.5.1

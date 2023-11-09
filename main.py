@@ -1,13 +1,13 @@
 from openai import OpenAI
 import base64
-# from dotenv import load_dotenv
+
+from dotenv import load_dotenv
 import time
 import os
 import glob
 import datetime
 
-# load_dotenv()
-
+load_dotenv()
 client = OpenAI()
 
 
@@ -22,6 +22,22 @@ def write_items_to_file(items, filename="what you should do.txt"):
         # Write items in reverse order
         for item in reversed(items):
             file.write(f"{item}\n")
+
+
+def get_screenshot():
+    screenshot_files = glob.glob("screenshots/screenshot_*.png")
+    screenshot_files = [screenshot.split(".")[0] for screenshot in screenshot_files]
+    # Parse the timestamp from the filename and sort the files by timestamp
+    sorted_screenshot_files = sorted(
+        screenshot_files,
+        key=lambda x: datetime.datetime.strptime(x.split("_")[1], "%Y-%m-%d-%H-%M-%S"),
+        reverse=True,
+    )
+    # Get the second latest screenshot
+    screenshot_to_parse = sorted_screenshot_files[1]
+    print(f"parsing screenshot: {screenshot_to_parse}.png")
+    encoded_image = encode_image(f"{screenshot_to_parse}.png")
+    return encoded_image
 
 
 goal = "listen to the same song at the same time with a friend"
@@ -39,9 +55,7 @@ messages = [
             },
             {
                 "type": "image_url",
-                "image_url": {
-                    "url": f"data:image/png;base64,{encode_image('screenshots/screenshot_2023-11-09-12-34-27.png')}"
-                },
+                "image_url": {"url": f"data:image/png;base64,{get_screenshot()}"},
             },
         ],
     }
@@ -63,10 +77,7 @@ messages.extend(
         {
             "role": "assistant",
             "content": [
-                {
-                    "type": "text",
-                    "text": reply
-                },
+                {"type": "text", "text": reply},
             ],
         },
         {
@@ -93,18 +104,6 @@ replies.append(reply)
 
 while True:
     # Get all screenshot files
-    screenshot_files = glob.glob("screenshots/screenshot_*.png")
-    screenshot_files = [screenshot.split(".")[0] for screenshot in screenshot_files]
-    # Parse the timestamp from the filename and sort the files by timestamp
-    sorted_screenshot_files = sorted(
-        screenshot_files,
-        key=lambda x: datetime.datetime.strptime(x.split("_")[1], "%Y-%m-%d-%H-%M-%S"),
-        reverse=True,
-    )
-    # Get the second latest screenshot
-    screenshot_to_parse = sorted_screenshot_files[1]
-    print(f"parsing screenshot: {screenshot_to_parse}.png")
-    encoded_image = encode_image(f"{screenshot_to_parse}.png")
 
     messages.extend(
         [
@@ -122,7 +121,9 @@ while True:
                 "content": [
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{encoded_image}"},
+                        "image_url": {
+                            "url": f"data:image/png;base64,{get_screenshot()}"
+                        },
                     },
                     {
                         "type": "text",

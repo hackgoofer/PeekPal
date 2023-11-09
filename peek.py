@@ -2,6 +2,8 @@ from packaging import version
 import pyautogui
 import time
 import datetime
+import os
+import glob
 
 # Your existing interval and screenshot functions here...
 
@@ -16,7 +18,10 @@ pyscreeze.PIL__version__ = __PIL_TUPLE_VERSION
 interval = 5  # e.g., 5 seconds
 
 # Set the number of screenshots to take
-number_of_screenshots = 20
+number_of_screenshots = 2
+
+# Directory to save screenshots
+directory = "screenshots"
 
 
 # Function to take a screenshot
@@ -24,7 +29,7 @@ def take_screenshot():
     # Get the current time in a readable format
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     # Set the filename with the current timestamp
-    filename = f"screenshots/screenshot_{timestamp}.png"
+    filename = f"{directory}/screenshot_{timestamp}.png"
     # Take a screenshot
     screenshot = pyautogui.screenshot()
     # Save the screenshot
@@ -32,9 +37,20 @@ def take_screenshot():
     print(f"Screenshot taken and saved as {filename}")
 
 
+# Function to delete old screenshots
+def delete_old_screenshots():
+    files = glob.glob(f"{directory}/*.png")
+    files.sort(key=os.path.getmtime)
+    print(files)
+    # Delete all but the 20 most recent screenshots
+    for file in files[:-number_of_screenshots]:
+        os.remove(file)
+
+
 # Main loop to take screenshots at the given interval
-for _ in range(number_of_screenshots):
+while True:
     take_screenshot()
+    delete_old_screenshots()
     # Wait for the specified interval
     time.sleep(interval)
 

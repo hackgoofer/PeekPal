@@ -11,7 +11,6 @@ handler = fal.apps.submit(
 for event in handler.iter_events():
     if isinstance(event, fal.apps.InProgress):
         print("Request in progress")
-        print(event)
+        print(event.logs)
 
 result = handler.get()
-print(result)

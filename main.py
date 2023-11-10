@@ -46,6 +46,7 @@ def get_screenshot():
     encoded_image = encode_image(f"{screenshot_to_parse}.png")
     return encoded_image
 
+
 if __name__ == "__main__":
 
     def get_spicy_comment(text):
@@ -79,7 +80,6 @@ if __name__ == "__main__":
         print(f"Spicy comment: {reply}")
         return reply
 
-
     def speak_aloud(text):
         speech_file_path = "speech.mp3"
         response = client.audio.speech.create(
@@ -99,7 +99,6 @@ if __name__ == "__main__":
         # Wait for the music to finish playing
         while pygame.mixer.music.get_busy():
             pygame.time.Clock().tick(10)
-
 
     goal = "listen to the same song at the same time with a friend"
     with open("goal.txt", "r") as file:
@@ -142,7 +141,8 @@ if __name__ == "__main__":
     print(reply)
     replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
-    messages.extend([
+    messages.extend(
+        [
             {
                 "role": "system",
                 "content": [
@@ -162,37 +162,9 @@ if __name__ == "__main__":
                     },
                     {
                         "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{get_screenshot()}"},
-                    },
-                ],
-            }
-        ])
-    replies = []
-
-    response = client.chat.completions.create(
-        model="gpt-4-vision-preview",
-        messages=messages,
-        max_tokens=300,
-    )
-
-    reply = response.choices[0].message.content
-    print(reply)
-    replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-
-    messages.extend(
-        [
-            {
-                "role": "assistant",
-                "content": [
-                    {"type": "text", "text": reply},
-                ],
-            },
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"According to the screenshot, what is the next step so to achieve the goal: {goal}",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{get_screenshot()}"
+                        },
                     },
                 ],
             },
@@ -208,7 +180,37 @@ if __name__ == "__main__":
     reply = response.choices[0].message.content
     print(reply)
     replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    write_items_to_file(replies)
-    comment = get_spicy_comment(reply)
-    speak_aloud(comment)
-    time.sleep(1)
+
+    while True:
+        messages.extend(
+            [
+                {
+                    "role": "assistant",
+                    "content": [
+                        {"type": "text", "text": reply},
+                    ],
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"According to the screenshot, what is the next step so to achieve the goal: {goal}",
+                        },
+                    ],
+                },
+            ]
+        )
+
+        response = client.chat.completions.create(
+            model="gpt-4-vision-preview",
+            messages=messages,
+            max_tokens=300,
+        )
+
+        reply = response.choices[0].message.content
+        print(reply)
+        replies.append((reply, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        write_items_to_file(replies)
+        comment = get_spicy_comment(reply)
+        speak_aloud(comment)
